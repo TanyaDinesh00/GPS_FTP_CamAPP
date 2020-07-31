@@ -6,6 +6,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
+import 'components/ButtonGroup.dart';
+import 'components/bottom_button.dart';
+
 class HomeScreen extends StatefulWidget {
   HomeScreen({this.locationData});
   final locationData;
@@ -20,6 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String albumName = 'Media';
 
   var location;
+  int index = 0;
+  File _image, _video;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -31,42 +36,117 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+//    return Scaffold(
+//      body: Container(
+//        color: Colors.white,
+//        child: Column(
+//          children: <Widget>[
+//            Flexible(
+//              flex: 1,
+//              child: Container(
+//                child: SizedBox.expand(
+//                  child: RaisedButton(
+//                    color: Colors.blue,
+//                    onPressed: _takePhoto,
+//                    child: Text(firstButtonText,
+//                        style:
+//                            TextStyle(fontSize: textSize, color: Colors.white)),
+//                  ),
+//                ),
+//              ),
+//            ),
+//            Flexible(
+//              child: Container(
+//                  child: SizedBox.expand(
+//                child: RaisedButton(
+//                  color: Colors.white,
+//                  onPressed: _recordVideo,
+//                  child: Text(secondButtonText,
+//                      style: TextStyle(
+//                          fontSize: textSize, color: Colors.blueGrey)),
+//                ),
+//              )),
+//              flex: 1,
+//            )
+//          ],
+//        ),
+//      ),
+//    );
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Camera+GPS "),
+      ),
       body: Container(
         color: Colors.white,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Flexible(
-              flex: 1,
-              child: Container(
-                child: SizedBox.expand(
-                  child: RaisedButton(
-                    color: Colors.blue,
-                    onPressed: _takePhoto,
-                    child: Text(firstButtonText,
+//                ReusableCard(text: firstButtonText + " " + secondButtonText),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                ButtonGroup(
+                  titles: ["Photo", "Video"],
+                  current: index,
+                  color: Colors.blue,
+                  secondaryColor: Colors.white,
+                  onTab: (selected) {
+                    setState(() {
+                      index = selected;
+                    });
+                    print("$index");
+                  },
+                ),
+                RaisedButton(
+                    child: Text("Capture"),
+                    onPressed: () {
+                      print("Button Pressed");
+                      _capture();
+                    }),
+              ],
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    if (_image != null && index == 0)
+                      Image.file(
+                        _image,
+                        fit: BoxFit.contain,
+                      )
+//                        else if (_video != null && index == 1)
+//                          _videoPlayerController.value.initialized
+//                              ? AspectRatio(
+//                                  aspectRatio:
+//                                      _videoPlayerController.value.aspectRatio,
+//                                  child: VideoPlayer(_videoPlayerController),
+//                                )
+//                              : Container()
+                    else
+                      Text(
+                        "Click on capture to get started.",
                         style:
-                            TextStyle(fontSize: textSize, color: Colors.white)),
-                  ),
+                            TextStyle(fontSize: 18.0, color: Colors.blueGrey),
+                      ),
+                  ],
                 ),
               ),
             ),
-            Flexible(
-              child: Container(
-                  child: SizedBox.expand(
-                child: RaisedButton(
-                  color: Colors.white,
-                  onPressed: _recordVideo,
-                  child: Text(secondButtonText,
-                      style: TextStyle(
-                          fontSize: textSize, color: Colors.blueGrey)),
-                ),
-              )),
-              flex: 1,
-            )
+            BottomButton(onTap: null, buttonTitle: "Upload"),
           ],
         ),
       ),
     );
+  }
+
+  void _capture() {
+    if (index == 0) {
+      _takePhoto();
+    }
+    if (index == 1) {
+      _recordVideo();
+    }
   }
 
   void _takePhoto() async {
@@ -88,6 +168,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 path.extension(pickedFile.path));
         File f = await File(pickedFile.path).copy(newPath);
         print(f.path);
+        setState(() {
+          _image = f;
+        });
 
         GallerySaver.saveImage(
           f.path,
