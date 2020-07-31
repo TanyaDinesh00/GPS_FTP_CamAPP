@@ -5,6 +5,7 @@ import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:video_player/video_player.dart';
 
 import 'components/ButtonGroup.dart';
 import 'components/bottom_button.dart';
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   var location;
   int index = 0;
   File _image, _video;
+  VideoPlayerController _videoPlayerController;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -115,14 +117,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         _image,
                         fit: BoxFit.contain,
                       )
-//                        else if (_video != null && index == 1)
-//                          _videoPlayerController.value.initialized
-//                              ? AspectRatio(
-//                                  aspectRatio:
-//                                      _videoPlayerController.value.aspectRatio,
-//                                  child: VideoPlayer(_videoPlayerController),
-//                                )
-//                              : Container()
+                    else if (_video != null && index == 1)
+                      _videoPlayerController.value.initialized
+                          ? AspectRatio(
+                              aspectRatio:
+                                  _videoPlayerController.value.aspectRatio,
+                              child: VideoPlayer(_videoPlayerController),
+                            )
+                          : Container(
+                              child: Text(
+                                "Waiting for video_player to be initialized...",
+                                style: TextStyle(color: Colors.redAccent),
+                              ),
+                            )
                     else
                       Text(
                         "Click on capture to get started.",
@@ -167,10 +174,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 DateTime.now().toString() +
                 path.extension(pickedFile.path));
         File f = await File(pickedFile.path).copy(newPath);
-        print(f.path);
         setState(() {
           _image = f;
         });
+        _showMyDialog("Image", path.basename((f.path)));
+        print(f.path);
 
         GallerySaver.saveImage(
           f.path,
@@ -203,6 +211,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 DateTime.now().toString() +
                 path.extension(pickedFile.path));
         File f = await File(pickedFile.path).copy(newPath);
+        setState(() {
+          _video = f;
+        });
+        _videoPlayerController = VideoPlayerController.file(_video)
+          ..initialize().then((_) {
+            setState(() {});
+            _videoPlayerController.play();
+          });
+        _showMyDialog("Video", path.basename((f.path)));
         print(f.path);
 
         GallerySaver.saveVideo(
@@ -216,5 +233,32 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     });
+  }
+
+  Future<void> _showMyDialog(String a, String b) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('$a Saved'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('$b'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
