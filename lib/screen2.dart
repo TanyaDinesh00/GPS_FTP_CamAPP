@@ -148,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ftpt(_image);
                   print("image uploading!");
                 } else if (index == 1 && _video != null) {
-                  ftpt(_image);
+                  ftpt(_video);
                   print("video uploading!");
                 } else {
                   print("nothing to upload!");
@@ -212,7 +212,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _recordVideo() async {
     await _picker
-        .getVideo(source: ImageSource.camera)
+        .getVideo(
+      source: ImageSource.camera,
+    )
         .then((PickedFile pickedFile) async {
       if (pickedFile != null && pickedFile.path != null) {
         setState(() {
@@ -221,12 +223,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
         print(pickedFile.path);
         String dir = (await getApplicationDocumentsDirectory()).path;
-        String newPath = path.join(
-            dir,
-            location.toString() +
-                "_" +
-                DateTime.now().toString() +
-                path.extension(pickedFile.path));
+        String newPath = path
+            .join(
+                dir,
+                location.toString() +
+                    "_" +
+                    DateTime.now().toString() +
+                    path.extension(pickedFile.path))
+            .replaceAll(':', '-');
         File f = await File(pickedFile.path).copy(newPath);
         setState(() {
           _video = f;
@@ -303,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //      ftpClient.disconnect();
 //    }
 //  }
-  void ftpt(fileToCompress) async {
+  void ftpt(File fileToCompress) async {
     FTPConnect ftpConnect =
         FTPConnect('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
     try {
@@ -314,18 +318,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
       print('Compressing file ...');
 
-      //File fileToCompress = _image;
-      final zipPath = (await getTemporaryDirectory()).path +
-          '/' +
-          path.basenameWithoutExtension(fileToCompress.path) +
-          '.zip';
+//      //File fileToCompress = _image;
 //      final zipPath = (await getTemporaryDirectory()).path +
 //          '/' +
-//          'Lat-12.903865_Long-77.599525_2020-08-02 10.41.46.690251' +
-////          'Lat: 12.903865, Long: 77.599525_2020-08-02 10:41:46.690251' +
+//          path.basenameWithoutExtension(fileToCompress.path) +
 //          '.zip';
-      print(zipPath);
-      await FTPConnect.zipFiles([fileToCompress.path], zipPath);
+////      final zipPath = (await getTemporaryDirectory()).path +
+////          '/' +
+////          'Lat-12.903865_Long-77.599525_2020-08-02 10.41.46.690251' +
+//////          'Lat: 12.903865, Long: 77.599525_2020-08-02 10:41:46.690251' +
+////          '.zip';
+//      print(zipPath);
+//      await FTPConnect.zipFiles([fileToCompress.path], zipPath);
       await ftpConnect.changeDirectory(index == 0 ? 'images' : 'videos');
       print(await ftpConnect.currentDirectory());
 
@@ -334,9 +338,11 @@ class _HomeScreenState extends State<HomeScreen> {
 //      print('Uploading ...');
 //      await ftpConnect.uploadFile(fileToUpload);
 
-      print('Uploading Zip file ...');
-      bool res = await ftpConnect.uploadFile(File(zipPath));
-      print('Zip file uploaded: ' + (res ? 'SUCCESSFULLY' : 'FAILED'));
+      print('Uploading File...');
+      bool res = await ftpConnect.uploadFile(fileToCompress);
+
+      //bool res = await ftpConnect.uploadFile(File(zipPath));
+      print('File Upload: ' + (res ? 'SUCCESSFULLY' : 'FAILED'));
       print("Upload Done!");
       print(await ftpConnect.currentDirectory());
 
@@ -348,12 +354,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<File> _fileMock({fileName = 'FlutterTest.txt', content = ''}) async {
-    final Directory directory =
-        Directory((await getExternalStorageDirectory()).path + '/test')
-          ..createSync(recursive: true);
-    final File file = File('${directory.path}/$fileName');
-    await file.writeAsString(content);
-    return file;
-  }
+//  Future<File> _fileMock({fileName = 'FlutterTest.txt', content = ''}) async {
+//    final Directory directory =
+//        Directory((await getExternalStorageDirectory()).path + '/test')
+//          ..createSync(recursive: true);
+//    final File file = File('${directory.path}/$fileName');
+//    await file.writeAsString(content);
+//    return file;
+//  }
 }
