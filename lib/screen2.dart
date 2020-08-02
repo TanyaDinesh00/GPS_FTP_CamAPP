@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:video_player/video_player.dart';
 import 'package:ftpconnect/ftpconnect.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'components/ButtonGroup.dart';
 import 'components/bottom_button.dart';
@@ -171,12 +172,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
         print(pickedFile.path);
         String dir = (await getApplicationDocumentsDirectory()).path;
-        String newPath = path.join(
-            dir,
-            location.toString() +
-                "_" +
-                DateTime.now().toString() +
-                path.extension(pickedFile.path));
+        String newPath = path
+            .join(
+                dir,
+                location.toString() +
+                    "_" +
+                    DateTime.now().toString() +
+                    path.extension(pickedFile.path))
+            .replaceAll(':', '-');
         File f = await File(pickedFile.path).copy(newPath);
         setState(() {
           _image = f;
@@ -302,15 +305,15 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Compressing file ...');
 
       File fileToCompress = _image;
-//      final zipPath = (await getTemporaryDirectory()).path +
-//          '/' +
-//          path.basenameWithoutExtension(fileToCompress.path) +
-//          '.zip';
       final zipPath = (await getTemporaryDirectory()).path +
           '/' +
-          'Lat-12.903865_Long-77.599525_2020-08-02 10.41.46.690251' +
-//          'Lat: 12.903865, Long: 77.599525_2020-08-02 10:41:46.690251' +
+          path.basenameWithoutExtension(fileToCompress.path) +
           '.zip';
+//      final zipPath = (await getTemporaryDirectory()).path +
+//          '/' +
+//          'Lat-12.903865_Long-77.599525_2020-08-02 10.41.46.690251' +
+////          'Lat: 12.903865, Long: 77.599525_2020-08-02 10:41:46.690251' +
+//          '.zip';
       print(zipPath);
       await FTPConnect.zipFiles([fileToCompress.path], zipPath);
       await ftpConnect.changeDirectory('images');
