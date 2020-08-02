@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
@@ -309,10 +309,36 @@ class _HomeScreenState extends State<HomeScreen> {
 //    }
 //  }
   void ftpt(File fileToCompress) async {
+    int flag=0;
     FTPConnect ftpConnect =
         FTPConnect('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
     try {
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>spinnerscreen()));
+      Alert(
+        context: context,
+        type: AlertType.info,
+        title: "Uploading....",
+        desc: "Please Wait....",
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: ()
+            {
+
+//              Navigator.push(context,
+//                  MaterialPageRoute(builder: (context) => HomeScreen()));
+              setState(() {
+                flag=1;
+              });
+              Navigator.pop(context);
+            },
+            width: 120,
+          )
+        ],
+      ).show();
+//      Navigator.push(context, MaterialPageRoute(builder: (context)=>spinnerscreen()));
       print("FTP. . .");
       await ftpConnect.connect();
       print("Connected");
@@ -341,19 +367,29 @@ class _HomeScreenState extends State<HomeScreen> {
 //      await ftpConnect.uploadFile(fileToUpload);
 
       print('Uploading File...');
-      bool res = await ftpConnect.uploadFile(fileToCompress);
-
+      bool res = false;
+      if (flag==0){
+        res = await ftpConnect.uploadFile(fileToCompress);
+      }
       //bool res = await ftpConnect.uploadFile(File(zipPath));
       print('File Upload: ' + (res ? 'SUCCESSFULLY' : 'FAILED'));
-      print("Upload Done!");
+      if (res==true)
+        {
+          print("Upload Done!");
+        }
       print(await ftpConnect.currentDirectory());
 
       //print(await ftpConnect.listDirectoryContent());
       print("Done");
       await ftpConnect.disconnect();
-      Navigator.pop(context);
+      if (res==true)
+        {
+          Navigator.pop(context);
+        }
     } catch (e) {
       print(e);
+      Navigator.pop(context);
+      Alert(context: context, title: "Error", desc: e.toString()).show();
     }
   }
 
