@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:video_player/video_player.dart';
+import 'package:ftpconnect/ftpconnect.dart';
 
 import 'components/ButtonGroup.dart';
 import 'components/bottom_button.dart';
@@ -140,7 +141,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            BottomButton(onTap: null, buttonTitle: "Upload"),
+            BottomButton(
+              onTap: ftpt,
+              buttonTitle: "Upload",
+            ),
           ],
         ),
       ),
@@ -180,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _showMyDialog("Image", path.basename((f.path)));
         print(f.path);
 
-        GallerySaver.saveImage(
+        await GallerySaver.saveImage(
           f.path,
           albumName: albumName,
         ).then((bool success) {
@@ -260,5 +264,83 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+//  void ftpTest() {
+//    FTPClient ftpClient =
+//        FTPClient('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
+//
+//    ftpClient.connect();
+//
+//    try {
+//      print("Connection Succcessful");
+//      print(ftpClient.currentDirectory());
+//      ftpClient.changeDirectory('images');
+//      print(ftpClient.currentDirectory());
+//      ftpClient.uploadFile(File('test3.txt'));
+//      ftpClient.uploadFile(_image);
+//      print(ftpClient.listDirectoryContent());
+//
+//      //ftpClient.uploadFile(_image == null ? File('test1.zip') : _image);
+//      print("End ftp");
+//      //print(ftpClient.listDirectoryContent());
+//
+//    } finally {
+//      // Disconnect
+//      ftpClient.disconnect();
+//    }
+//  }
+  void ftpt() async {
+    FTPConnect ftpConnect =
+        FTPConnect('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
+    try {
+      print("FTP. . .");
+      await ftpConnect.connect();
+      print("Connected");
+      print(await ftpConnect.currentDirectory());
+
+      print('Compressing file ...');
+
+      File fileToCompress = _image;
+//      final zipPath = (await getTemporaryDirectory()).path +
+//          '/' +
+//          path.basenameWithoutExtension(fileToCompress.path) +
+//          '.zip';
+      final zipPath = (await getTemporaryDirectory()).path +
+          '/' +
+          'Lat-12.903865_Long-77.599525_2020-08-02 10.41.46.690251' +
+//          'Lat: 12.903865, Long: 77.599525_2020-08-02 10:41:46.690251' +
+          '.zip';
+      print(zipPath);
+      await FTPConnect.zipFiles([fileToCompress.path], zipPath);
+      await ftpConnect.changeDirectory('images');
+      print(await ftpConnect.currentDirectory());
+
+//      File fileToUpload = await _fileMock(
+//          fileName: 'uploadStepByStep.txt', content: 'uploaded Step By Step');
+//      print('Uploading ...');
+//      await ftpConnect.uploadFile(fileToUpload);
+
+      print('Uploading Zip file ...');
+      bool res = await ftpConnect.uploadFile(File(zipPath));
+      print('Zip file uploaded: ' + (res ? 'SUCCESSFULLY' : 'FAILED'));
+      print("Upload Done!");
+      print(await ftpConnect.currentDirectory());
+
+      //print(await ftpConnect.listDirectoryContent());
+      print("Done");
+      await ftpConnect.disconnect();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<File> _fileMock({fileName = 'FlutterTest.txt', content = ''}) async {
+    final Directory directory =
+        Directory((await getExternalStorageDirectory()).path + '/test')
+          ..createSync(recursive: true);
+    final File file = File('${directory.path}/$fileName');
+    await file.writeAsString(content);
+    return file;
   }
 }
