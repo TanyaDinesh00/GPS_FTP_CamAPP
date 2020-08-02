@@ -143,7 +143,17 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             BottomButton(
-              onTap: ftpt,
+              onTap: () {
+                if (index == 0 && _image != null) {
+                  ftpt(_image);
+                  print("image uploading!");
+                } else if (index == 1 && _video != null) {
+                  ftpt(_image);
+                  print("video uploading!");
+                } else {
+                  print("nothing to upload!");
+                }
+              },
               buttonTitle: "Upload",
             ),
           ],
@@ -229,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _showMyDialog("Video", path.basename((f.path)));
         print(f.path);
 
-        GallerySaver.saveVideo(
+        await GallerySaver.saveVideo(
           f.path,
           albumName: albumName,
         ).then((bool success) {
@@ -293,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //      ftpClient.disconnect();
 //    }
 //  }
-  void ftpt() async {
+  void ftpt(fileToCompress) async {
     FTPConnect ftpConnect =
         FTPConnect('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
     try {
@@ -304,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       print('Compressing file ...');
 
-      File fileToCompress = _image;
+      //File fileToCompress = _image;
       final zipPath = (await getTemporaryDirectory()).path +
           '/' +
           path.basenameWithoutExtension(fileToCompress.path) +
@@ -316,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //          '.zip';
       print(zipPath);
       await FTPConnect.zipFiles([fileToCompress.path], zipPath);
-      await ftpConnect.changeDirectory('images');
+      await ftpConnect.changeDirectory(index == 0 ? 'images' : 'videos');
       print(await ftpConnect.currentDirectory());
 
 //      File fileToUpload = await _fileMock(
