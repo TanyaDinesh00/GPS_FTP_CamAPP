@@ -8,6 +8,7 @@ import 'package:path/path.dart' as path;
 import 'package:video_player/video_player.dart';
 import 'package:ftpconnect/ftpconnect.dart';
 import 'package:geolocator/geolocator.dart';
+import 'screen3.dart';
 
 import 'components/ButtonGroup.dart';
 import 'components/bottom_button.dart';
@@ -311,6 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
     FTPConnect ftpConnect =
         FTPConnect('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
     try {
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>spinnerscreen()));
       print("FTP. . .");
       await ftpConnect.connect();
       print("Connected");
@@ -349,6 +351,7 @@ class _HomeScreenState extends State<HomeScreen> {
       //print(await ftpConnect.listDirectoryContent());
       print("Done");
       await ftpConnect.disconnect();
+      Navigator.pop(context);
     } catch (e) {
       print(e);
     }
