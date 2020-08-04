@@ -267,22 +267,29 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void ftpTest(File fileToUpload, BuildContext context) async {
+  void ftpTest(File file, BuildContext context) async {
+    File fileToUpload;
     if (index == 1) {
+      //Compression for Videos
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text("Compressing video..."),
       ));
-      print('Compressing');
       final info = await VideoCompress.compressVideo(
-        fileToUpload.path,
+        file.path,
         quality: VideoQuality.MediumQuality,
         deleteOrigin: false,
       );
       fileToUpload = File(info.path);
+      fileToUpload = fileToUpload.renameSync(//Renaming compressed video
+          path.join(path.dirname(info.path), path.basename(file.path)));
       _scaffoldKey.currentState.removeCurrentSnackBar();
+      print(path.join(path.dirname(info.path), path.basename(file.path)));
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text("Video compressed..."),
       ));
+    } else {
+      //For images
+      fileToUpload = file;
     }
 
     FTPClient ftpClient =
