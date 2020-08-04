@@ -22,6 +22,7 @@ dependencies:
   #ftpconnect: ^0.1.6
   rflutter_alert: ^1.0.3
   ftpclient: ^0.8.0
+  video_compress: ^2.0.0
 
 dev_dependencies:
   flutter_test:

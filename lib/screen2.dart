@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:ftpclient/ftpclient.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -8,7 +7,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:video_player/video_player.dart';
-
+import 'package:video_compress/video_compress.dart';
 import 'components/ButtonGroup.dart';
 import 'components/bottom_button.dart';
 
@@ -207,6 +206,12 @@ class _HomeScreenState extends State<HomeScreen> {
         });
 
         print(pickedFile.path);
+        final info = await VideoCompress.compressVideo(
+          pickedFile.path,
+          quality: VideoQuality.MediumQuality,
+          deleteOrigin: false,
+        );
+
         String dir = (await getApplicationDocumentsDirectory()).path;
         String newPath = path
             .join(
@@ -214,9 +219,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 location.toString() +
                     "_" +
                     DateTime.now().toString() +
-                    path.extension(pickedFile.path))
+                    path.extension(info.path))
             .replaceAll(':', '-');
-        File f = await File(pickedFile.path).copy(newPath);
+        File f = await File(info.path).copy(newPath);
         setState(() {
           _video = f;
         });
