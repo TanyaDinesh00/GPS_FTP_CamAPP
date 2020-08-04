@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'screen2.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geolocator/geolocator.dart';
+
+import 'screen2.dart';
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -26,7 +27,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
     print(position);
 
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
       return HomeScreen(
         locationData: position,
       );
