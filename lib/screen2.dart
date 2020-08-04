@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:ftpclient/ftpclient.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -6,9 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:video_player/video_player.dart';
-import 'package:ftpconnect/ftpconnect.dart';
 import 'package:geolocator/geolocator.dart';
-import 'screen3.dart';
 
 import 'components/ButtonGroup.dart';
 import 'components/bottom_button.dart';
@@ -25,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String secondButtonText = 'Record video';
   double textSize = 20;
   String albumName = 'Media';
+  bool _isUploading = false;
 
   var location;
   int index = 0;
@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   VideoPlayerController _videoPlayerController;
 
   final ImagePicker _picker = ImagePicker();
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -41,43 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-//    return Scaffold(
-//      body: Container(
-//        color: Colors.white,
-//        child: Column(
-//          children: <Widget>[
-//            Flexible(
-//              flex: 1,
-//              child: Container(
-//                child: SizedBox.expand(
-//                  child: RaisedButton(
-//                    color: Colors.blue,
-//                    onPressed: _takePhoto,
-//                    child: Text(firstButtonText,
-//                        style:
-//                            TextStyle(fontSize: textSize, color: Colors.white)),
-//                  ),
-//                ),
-//              ),
-//            ),
-//            Flexible(
-//              child: Container(
-//                  child: SizedBox.expand(
-//                child: RaisedButton(
-//                  color: Colors.white,
-//                  onPressed: _recordVideo,
-//                  child: Text(secondButtonText,
-//                      style: TextStyle(
-//                          fontSize: textSize, color: Colors.blueGrey)),
-//                ),
-//              )),
-//              flex: 1,
-//            )
-//          ],
-//        ),
-//      ),
-//    );
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text("Camera+GPS "),
       ),
@@ -145,17 +111,33 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             BottomButton(
               onTap: () {
-                if (index == 0 && _image != null) {
-                  ftpt(_image);
-                  print("image uploading!");
-                } else if (index == 1 && _video != null) {
-                  ftpt(_video);
-                  print("video uploading!");
+                if (_isUploading) {
+                  _showMyDialog("Please wait", "Upload in progress");
                 } else {
-                  print("nothing to upload!");
+                  if (index == 0 && _image != null) {
+                    setState(() {
+                      _isUploading = true;
+                    });
+                    print("image uploading!");
+                    _scaffoldKey.currentState.showSnackBar(SnackBar(
+                      content: Text("Connecting..."),
+                    ));
+                    ftpTest(_image, context);
+                  } else if (index == 1 && _video != null) {
+                    _isUploading = true;
+                    print("video uploading!");
+                    _scaffoldKey.currentState.showSnackBar(SnackBar(
+                      content: Text("Connecting..."),
+                    ));
+                    ftpTest(_video, context);
+                  } else {
+                    _showMyDialog(
+                        'Nothing to upload!', "Capture an Image/Video first");
+                    print("nothing to upload!");
+                  }
                 }
               },
-              buttonTitle: "Upload",
+              buttonTitle: _isUploading ? "Uploading..." : "Upload",
             ),
           ],
         ),
@@ -195,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           _image = f;
         });
-        _showMyDialog("Image", path.basename((f.path)));
+        _showMyDialog("Image saved", path.basename((f.path)));
         print(f.path);
 
         await GallerySaver.saveImage(
@@ -241,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() {});
             _videoPlayerController.play();
           });
-        _showMyDialog("Video", path.basename((f.path)));
+        _showMyDialog("Video saved", path.basename((f.path)));
         print(f.path);
 
         await GallerySaver.saveVideo(
@@ -263,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: false, // user must tap button!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('$a Saved'),
+          title: Text('$a'),
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
@@ -284,121 +266,56 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-//  void ftpTest() {
-//    FTPClient ftpClient =
-//        FTPClient('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
-//
-//    ftpClient.connect();
-//
-//    try {
-//      print("Connection Succcessful");
-//      print(ftpClient.currentDirectory());
-//      ftpClient.changeDirectory('images');
-//      print(ftpClient.currentDirectory());
-//      ftpClient.uploadFile(File('test3.txt'));
-//      ftpClient.uploadFile(_image);
-//      print(ftpClient.listDirectoryContent());
-//
-//      //ftpClient.uploadFile(_image == null ? File('test1.zip') : _image);
-//      print("End ftp");
-//      //print(ftpClient.listDirectoryContent());
-//
-//    } finally {
-//      // Disconnect
-//      ftpClient.disconnect();
-//    }
-//  }
-  void ftpt(File fileToCompress) async {
-    int flag=0;
-    FTPConnect ftpConnect =
-        FTPConnect('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
+  void ftpTest(File fileToUpload, BuildContext context) async {
+    FTPClient ftpClient =
+        FTPClient('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
+
     try {
-      Alert(
-        context: context,
-        type: AlertType.info,
-        title: "Uploading....",
-        desc: "Please Wait....",
-        buttons: [
-          DialogButton(
-            child: Text(
-              "Cancel",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-            onPressed: ()
-            {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("Connecting..."),
+      ));
+      ftpClient.connect();
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+      print("Connection Successful");
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("Connection Successful"),
+      ));
 
-//              Navigator.push(context,
-//                  MaterialPageRoute(builder: (context) => HomeScreen()));
-              setState(() {
-                flag=1;
-              });
-              Navigator.pop(context);
-            },
-            width: 120,
-          )
-        ],
-      ).show();
-//      Navigator.push(context, MaterialPageRoute(builder: (context)=>spinnerscreen()));
-      print("FTP. . .");
-      await ftpConnect.connect();
-      print("Connected");
-      print(await ftpConnect.currentDirectory());
+      print(ftpClient.currentDirectory());
+      ftpClient.changeDirectory(index == 0 ? 'images' : 'videos');
+      print(ftpClient.currentDirectory());
 
-      print('Compressing file ...');
-
-//      //File fileToCompress = _image;
-//      final zipPath = (await getTemporaryDirectory()).path +
-//          '/' +
-//          path.basenameWithoutExtension(fileToCompress.path) +
-//          '.zip';
-////      final zipPath = (await getTemporaryDirectory()).path +
-////          '/' +
-////          'Lat-12.903865_Long-77.599525_2020-08-02 10.41.46.690251' +
-//////          'Lat: 12.903865, Long: 77.599525_2020-08-02 10:41:46.690251' +
-////          '.zip';
-//      print(zipPath);
-//      await FTPConnect.zipFiles([fileToCompress.path], zipPath);
-      await ftpConnect.changeDirectory(index == 0 ? 'images' : 'videos');
-      print(await ftpConnect.currentDirectory());
-
-//      File fileToUpload = await _fileMock(
-//          fileName: 'uploadStepByStep.txt', content: 'uploaded Step By Step');
-//      print('Uploading ...');
-//      await ftpConnect.uploadFile(fileToUpload);
-
-      print('Uploading File...');
-      bool res = false;
-      if (flag==0){
-        res = await ftpConnect.uploadFile(fileToCompress);
-      }
-      //bool res = await ftpConnect.uploadFile(File(zipPath));
-      print('File Upload: ' + (res ? 'SUCCESSFULLY' : 'FAILED'));
-      if (res==true)
-        {
-          print("Upload Done!");
-        }
-      print(await ftpConnect.currentDirectory());
-
-      //print(await ftpConnect.listDirectoryContent());
-      print("Done");
-      await ftpConnect.disconnect();
-      if (res==true)
-        {
-          Navigator.pop(context);
-        }
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("Uploading..."),
+      ));
+      await ftpClient.uploadFile(fileToUpload).then((value) {
+        Alert(
+                context: context,
+                title: "Upload Done!",
+                desc: (index == 0 ? 'Image' : 'Videos') +
+                    ' was uploaded successfully.')
+            .show();
+        _scaffoldKey.currentState.removeCurrentSnackBar();
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text("Uploaded Successfully"),
+          action: SnackBarAction(
+            label: 'Done',
+            onPressed: () {},
+          ),
+        ));
+        print("Upload done!");
+      });
     } catch (e) {
-      print(e);
-      Navigator.pop(context);
       Alert(context: context, title: "Error", desc: e.toString()).show();
+      print(e);
+    } finally {
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+      ftpClient.disconnect();
+      setState(() {
+        _isUploading = false;
+      });
+      print("End FTP");
     }
   }
-
-//  Future<File> _fileMock({fileName = 'FlutterTest.txt', content = ''}) async {
-//    final Directory directory =
-//        Directory((await getExternalStorageDirectory()).path + '/test')
-//          ..createSync(recursive: true);
-//    final File file = File('${directory.path}/$fileName');
-//    await file.writeAsString(content);
-//    return file;
-//  }
 }

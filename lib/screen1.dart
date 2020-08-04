@@ -1,36 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'screen2.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
-//class LoadingScreen extends StatefulWidget {
-//  LoadingScreen({this.locationData});
-//  final locationData;
-//  @override
-//  _LoadingScreenState createState() => _LoadingScreenState();
-//}
-//
-//class _LoadingScreenState extends State<LoadingScreen> {
-//  @override
-//  void initState() {
-//    super.initState();
-//  }
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Scaffold(
-//      body: Container(
-//        child: Text(
-//          "${widget.locationData}",
-//          style: TextStyle(color: Colors.redAccent),
-//        ),
-//      ),
-//    );
-//  }
-//}
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -42,8 +13,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
   String secondButtonText = 'Record video';
   double textSize = 20;
   String albumName = 'Media';
-
-  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
