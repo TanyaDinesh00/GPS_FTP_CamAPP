@@ -26,7 +26,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
     print(position);
 
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
       return HomeScreen(
         locationData: position,
       );

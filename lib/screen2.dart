@@ -127,9 +127,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       _isUploading = true;
                     });
                     print("video uploading!");
-                    _scaffoldKey.currentState.showSnackBar(SnackBar(
-                      content: Text("Connecting..."),
-                    ));
+//                    _scaffoldKey.currentState.showSnackBar(SnackBar(
+//                      content: Text("Connecting..."),
+//                    ));
                     ftpTest(_video, context);
                   } else {
                     _showMyDialog(
@@ -206,12 +206,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
 
         print(pickedFile.path);
-        final info = await VideoCompress.compressVideo(
-          pickedFile.path,
-          quality: VideoQuality.MediumQuality,
-          deleteOrigin: false,
-        );
-
         String dir = (await getApplicationDocumentsDirectory()).path;
         String newPath = path
             .join(
@@ -219,9 +213,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 location.toString() +
                     "_" +
                     DateTime.now().toString() +
-                    path.extension(info.path))
+                    path.extension(pickedFile.path))
             .replaceAll(':', '-');
-        File f = await File(info.path).copy(newPath);
+        File f = await File(pickedFile.path).copy(newPath);
         setState(() {
           _video = f;
         });
@@ -274,10 +268,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void ftpTest(File fileToUpload, BuildContext context) async {
+    if (index == 1) {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("Compressing video..."),
+      ));
+      print('Compressing');
+      final info = await VideoCompress.compressVideo(
+        fileToUpload.path,
+        quality: VideoQuality.MediumQuality,
+        deleteOrigin: false,
+      );
+      fileToUpload = File(info.path);
+      _scaffoldKey.currentState.removeCurrentSnackBar();
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("Video compressed..."),
+      ));
+    }
+
     FTPClient ftpClient =
         FTPClient('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
 
     try {
+      _scaffoldKey.currentState.removeCurrentSnackBar();
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text("Connecting..."),
       ));
