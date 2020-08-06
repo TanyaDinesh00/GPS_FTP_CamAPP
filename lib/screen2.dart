@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_compress/video_compress.dart';
+import 'package:chewie/chewie.dart';
 import 'components/ButtonGroup.dart';
 import 'components/bottom_button.dart';
 
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int index = 0;
   File _image, _video;
   VideoPlayerController _videoPlayerController;
+  ChewieController _chewieController;
 
   final ImagePicker _picker = ImagePicker();
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -76,36 +78,34 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    if (_image != null && index == 0)
-                      Image.file(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  if (_image != null && index == 0)
+                    Expanded(
+                      child: Image.file(
                         _image,
                         fit: BoxFit.contain,
-                      )
-                    else if (_video != null && index == 1)
-                      _videoPlayerController.value.initialized
-                          ? AspectRatio(
-                              aspectRatio:
-                                  _videoPlayerController.value.aspectRatio,
-                              child: VideoPlayer(_videoPlayerController),
-                            )
-                          : Container(
-                              child: Text(
-                                "Waiting for video_player to be initialized...",
-                                style: TextStyle(color: Colors.redAccent),
-                              ),
-                            )
-                    else
-                      Text(
-                        "Click on capture to get started.",
-                        style:
-                            TextStyle(fontSize: 18.0, color: Colors.blueGrey),
                       ),
-                  ],
-                ),
+                    )
+                  else if (_video != null && index == 1)
+                    _videoPlayerController.value.initialized
+                        ? Expanded(
+                            child: Chewie(
+                            controller: _chewieController,
+                          ))
+                        : Container(
+                            child: Text(
+                              "Waiting for video_player to be initialized...",
+                              style: TextStyle(color: Colors.redAccent),
+                            ),
+                          )
+                  else
+                    Text(
+                      "Click on capture to get started.",
+                      style: TextStyle(fontSize: 18.0, color: Colors.blueGrey),
+                    ),
+                ],
               ),
             ),
             BottomButton(
@@ -118,9 +118,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       _isUploading = true;
                     });
                     print("image uploading!");
-                    _scaffoldKey.currentState.showSnackBar(SnackBar(
-                      content: Text("Connecting..."),
-                    ));
+//                    _scaffoldKey.currentState.showSnackBar(SnackBar(
+//                      content: Text("Connecting..."),
+//                    ));
                     ftpTest(_image, context);
                   } else if (index == 1 && _video != null) {
                     setState(() {
@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _takePhoto() async {
     await _picker
-        .getImage(source: ImageSource.camera)
+        .getImage(source: ImageSource.camera, imageQuality: 50)
         .then((PickedFile pickedFile) async {
       if (pickedFile != null && pickedFile.path != null) {
         setState(() {
@@ -219,10 +219,24 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           _video = f;
         });
+//        TODO : Switch To Chewie
         _videoPlayerController = VideoPlayerController.file(_video)
           ..initialize().then((_) {
-            setState(() {});
-            _videoPlayerController.play();
+            setState(() {
+              _chewieController = ChewieController(
+                videoPlayerController: _videoPlayerController,
+                aspectRatio: _videoPlayerController.value.aspectRatio,
+                autoPlay: true,
+                looping: false,
+              );
+            });
+            //_videoPlayerController.play();
+//            _chewieController = ChewieController(
+//              videoPlayerController: _videoPlayerController,
+//              aspectRatio: _videoPlayerController.value.aspectRatio,
+//              autoPlay: true,
+//              looping: false,
+//            );
           });
         _showMyDialog("Video saved", path.basename((f.path)));
         print(f.path);
@@ -289,6 +303,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ));
     } else {
       //For images
+      setState(() {
+        _isUploading = true;
+      });
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text("Connecting..."),
+      ));
       fileToUpload = file;
     }
 
