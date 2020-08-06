@@ -1,4 +1,6 @@
 import 'dart:io';
+
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:ftpclient/ftpclient.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -6,9 +8,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:video_player/video_player.dart';
 import 'package:video_compress/video_compress.dart';
-import 'package:chewie/chewie.dart';
+import 'package:video_player/video_player.dart';
+
 import 'components/ButtonGroup.dart';
 import 'components/bottom_button.dart';
 
@@ -212,7 +214,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 location.toString() + "_" + DateTime.now().toString() + '.mp4'
                 //+path.extension(pickedFile.path)
                 )
-            .replaceAll(':', '-');
+            .replaceAll(':', '-')
+            .replaceAll(' ', '_'); //No spaces for iOS
         File f = await File(pickedFile.path).copy(newPath);
         setState(() {
           _video = f;
