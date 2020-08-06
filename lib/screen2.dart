@@ -208,12 +208,10 @@ class _HomeScreenState extends State<HomeScreen> {
         print(pickedFile.path);
         String dir = (await getApplicationDocumentsDirectory()).path;
         String newPath = path
-            .join(
-                dir,
-                location.toString() +
-                    "_" +
-                    DateTime.now().toString() +
-                    path.extension(pickedFile.path))
+            .join(dir,
+                location.toString() + "_" + DateTime.now().toString() + '.mp4'
+                //+path.extension(pickedFile.path)
+                )
             .replaceAll(':', '-');
         File f = await File(pickedFile.path).copy(newPath);
         setState(() {
