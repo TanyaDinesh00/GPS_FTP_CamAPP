@@ -22,9 +22,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String firstButtonText = 'Take photo';
-  String secondButtonText = 'Record video';
-  double textSize = 20;
   String albumName = 'Media';
   bool _isUploading = false;
 
@@ -162,10 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
         .getImage(source: ImageSource.camera, imageQuality: 50)
         .then((PickedFile pickedFile) async {
       if (pickedFile != null && pickedFile.path != null) {
-        setState(() {
-          firstButtonText = 'saving in progress...';
-        });
-
         print(pickedFile.path);
         String dir = (await getApplicationDocumentsDirectory()).path;
         String newPath = path
@@ -188,9 +181,6 @@ class _HomeScreenState extends State<HomeScreen> {
           albumName: albumName,
         ).then((bool success) {
           print("${f.path}");
-          setState(() {
-            firstButtonText = 'image saved!';
-          });
         });
       }
     });
@@ -203,10 +193,6 @@ class _HomeScreenState extends State<HomeScreen> {
     )
         .then((PickedFile pickedFile) async {
       if (pickedFile != null && pickedFile.path != null) {
-        setState(() {
-          secondButtonText = 'saving in progress...';
-        });
-
         print(pickedFile.path);
         String dir = (await getApplicationDocumentsDirectory()).path;
         String newPath = path
@@ -247,9 +233,6 @@ class _HomeScreenState extends State<HomeScreen> {
           albumName: albumName,
         ).then((bool success) {
           print("${f.path}");
-          setState(() {
-            secondButtonText = 'Video saved!';
-          });
         });
       }
     });

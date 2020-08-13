@@ -10,11 +10,6 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
-  String firstButtonText = 'Take photo';
-  String secondButtonText = 'Record video';
-  double textSize = 20;
-  String albumName = 'Media';
-
   @override
   void initState() {
     super.initState();
@@ -49,7 +44,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
             height: 10,
           ),
           Text(
-              "Fetching Location Data \n Make sure Location and Data is turned on"),
+              "Fetching Location Data \nMake sure Location and Data is turned on"),
         ],
       )),
     );
