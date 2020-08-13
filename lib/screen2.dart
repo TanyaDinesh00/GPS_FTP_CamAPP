@@ -21,12 +21,14 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
+enum cameraMode { photo, video }
+
 class _HomeScreenState extends State<HomeScreen> {
   String albumName = 'Media';
   bool _isUploading = false;
 
   var location;
-  int index = 0;
+  cameraMode captureMode = cameraMode.photo;
   File _image, _video;
   VideoPlayerController _videoPlayerController;
   ChewieController _chewieController;
@@ -57,14 +59,14 @@ class _HomeScreenState extends State<HomeScreen> {
               children: <Widget>[
                 ButtonGroup(
                   titles: ["Photo", "Video"],
-                  current: index,
+                  current: captureMode.index,
                   color: Colors.blue,
                   secondaryColor: Colors.white,
                   onTab: (selected) {
                     setState(() {
-                      index = selected;
+                      captureMode = cameraMode.values[selected];
                     });
-                    print("$index");
+                    print("$captureMode");
                   },
                 ),
                 RaisedButton(
@@ -79,14 +81,14 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
-                  if (_image != null && index == 0)
+                  if (_image != null && captureMode == cameraMode.photo)
                     Expanded(
                       child: Image.file(
                         _image,
                         fit: BoxFit.contain,
                       ),
                     )
-                  else if (_video != null && index == 1)
+                  else if (_video != null && captureMode == cameraMode.video)
                     _videoPlayerController.value.initialized
                         ? Expanded(
                             child: Chewie(
@@ -111,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (_isUploading) {
                   _showMyDialog("Please wait", "Upload in progress");
                 } else {
-                  if (index == 0 && _image != null) {
+                  if (captureMode == cameraMode.photo && _image != null) {
                     setState(() {
                       _isUploading = true;
                     });
@@ -120,7 +122,8 @@ class _HomeScreenState extends State<HomeScreen> {
 //                      content: Text("Connecting..."),
 //                    ));
                     ftpUpload(_image, context);
-                  } else if (index == 1 && _video != null) {
+                  } else if (captureMode == cameraMode.video &&
+                      _video != null) {
                     setState(() {
                       _isUploading = true;
                     });
@@ -145,10 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _capture() {
-    if (index == 0) {
+    if (captureMode == cameraMode.photo) {
       _takePhoto();
     }
-    if (index == 1) {
+    if (captureMode == cameraMode.video) {
       _recordVideo();
     }
   }
@@ -259,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void ftpUpload(File file, BuildContext context) async {
     File fileToUpload;
-    if (index == 1) {
+    if (captureMode == cameraMode.video) {
       //Compression for Videos
       _scaffoldKey.currentState.showSnackBar(SnackBar(
         content: Text("Compressing video..."),
@@ -304,7 +307,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ));
 
       print(ftpClient.currentDirectory());
-      ftpClient.changeDirectory(index == 0 ? 'images' : 'videos');
+      ftpClient.changeDirectory(
+          captureMode == cameraMode.photo ? 'images' : 'videos');
       print(ftpClient.currentDirectory());
 
       _scaffoldKey.currentState.hideCurrentSnackBar();
@@ -315,7 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Alert(
                 context: context,
                 title: "Upload Done!",
-                desc: (index == 0 ? 'Image' : 'Video') +
+                desc: (captureMode == cameraMode.photo ? 'Image' : 'Video') +
                     ' was uploaded successfully.')
             .show();
         _scaffoldKey.currentState.removeCurrentSnackBar();
