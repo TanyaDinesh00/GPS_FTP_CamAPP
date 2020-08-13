@@ -356,6 +356,10 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       Alert(context: context, title: "Error", desc: e.toString()).show();
       print(e);
+      ftpClient.disconnect();
+      setState(() {
+        _isUploading = false;
+      });
     } finally {
       _scaffoldKey.currentState.hideCurrentSnackBar();
       ftpClient.disconnect();
