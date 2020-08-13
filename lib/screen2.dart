@@ -52,7 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-//                ReusableCard(text: firstButtonText + " " + secondButtonText),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
@@ -120,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //                    _scaffoldKey.currentState.showSnackBar(SnackBar(
 //                      content: Text("Connecting..."),
 //                    ));
-                    ftpTest(_image, context);
+                    ftpUpload(_image, context);
                   } else if (index == 1 && _video != null) {
                     setState(() {
                       _isUploading = true;
@@ -129,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
 //                    _scaffoldKey.currentState.showSnackBar(SnackBar(
 //                      content: Text("Connecting..."),
 //                    ));
-                    ftpTest(_video, context);
+                    ftpUpload(_video, context);
                   } else {
                     _showMyDialog(
                         'Nothing to upload!', "Capture an Image/Video first");
@@ -168,7 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     "_" +
                     DateTime.now().toString() +
                     path.extension(pickedFile.path))
-            .replaceAll(':', '-');
+            .replaceAll(':', '-')
+            .replaceAll(' ', '_');
         File f = await File(pickedFile.path).copy(newPath);
         setState(() {
           _image = f;
@@ -206,7 +206,6 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           _video = f;
         });
-//        TODO : Switch To Chewie
         _videoPlayerController = VideoPlayerController.file(_video)
           ..initialize().then((_) {
             setState(() {
@@ -217,13 +216,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 looping: false,
               );
             });
-            //_videoPlayerController.play();
-//            _chewieController = ChewieController(
-//              videoPlayerController: _videoPlayerController,
-//              aspectRatio: _videoPlayerController.value.aspectRatio,
-//              autoPlay: true,
-//              looping: false,
-//            );
           });
         _showMyDialog("Video saved", path.basename((f.path)));
         print(f.path);
@@ -265,7 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void ftpTest(File file, BuildContext context) async {
+  void ftpUpload(File file, BuildContext context) async {
     File fileToUpload;
     if (index == 1) {
       //Compression for Videos
