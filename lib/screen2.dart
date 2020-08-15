@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ftpclient/ftpclient.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -163,15 +164,23 @@ class _HomeScreenState extends State<HomeScreen> {
       if (pickedFile != null && pickedFile.path != null) {
         print(pickedFile.path);
         String dir = (await getApplicationDocumentsDirectory()).path;
-        String newPath = path
-            .join(
-                dir,
-                location.toString() +
-                    "_" +
-                    DateTime.now().toString() +
-                    path.extension(pickedFile.path))
-            .replaceAll(':', '-')
-            .replaceAll(' ', '_');
+        var now = new DateTime.now();
+        String timeStamp = DateFormat("yyyyMMddhhmmssmmm").format(now);
+        var lat = double.parse(location.latitude.toString()).toStringAsFixed(5);
+        var lon =
+            double.parse(location.longitude.toString()).toStringAsFixed(5);
+        String newPath = path.join(
+            dir,
+            'PIHMS' +
+                '_' +
+                lat.replaceAll('.', '') +
+                lon.replaceAll('.', '') +
+                '_' +
+                timeStamp +
+                path.extension(pickedFile.path));
+//            .replaceAll(':', '-')
+//            .replaceAll(' ', '_'); //No spaces for iOS
+
         File f = await File(pickedFile.path).copy(newPath);
         setState(() {
           _image = f;
@@ -198,13 +207,23 @@ class _HomeScreenState extends State<HomeScreen> {
       if (pickedFile != null && pickedFile.path != null) {
         print(pickedFile.path);
         String dir = (await getApplicationDocumentsDirectory()).path;
-        String newPath = path
-            .join(dir,
-                location.toString() + "_" + DateTime.now().toString() + '.mp4'
-                //+path.extension(pickedFile.path)
-                )
-            .replaceAll(':', '-')
-            .replaceAll(' ', '_'); //No spaces for iOS
+        var now = new DateTime.now();
+        String timeStamp = DateFormat("yyyyMMddhhmmssmmm").format(now);
+        var lat = double.parse(location.latitude.toString()).toStringAsFixed(5);
+        var lon =
+            double.parse(location.longitude.toString()).toStringAsFixed(5);
+        String newPath = path.join(
+            dir,
+            'PIHMS' +
+                '_' +
+                lat.replaceAll('.', '') +
+                lon.replaceAll('.', '') +
+                '_' +
+                timeStamp +
+                '.mp4'); //+path.extension(pickedFile.path)
+//            .replaceAll(':', '-')
+//            .replaceAll(' ', '_'); //No spaces for iOS
+
         File f = await File(pickedFile.path).copy(newPath);
         setState(() {
           _video = f;
