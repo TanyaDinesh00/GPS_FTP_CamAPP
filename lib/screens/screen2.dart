@@ -12,8 +12,8 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 
-import 'components/ButtonGroup.dart';
-import 'components/bottom_button.dart';
+import '../components/ButtonGroup.dart';
+import '../components/bottom_button.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({this.locationData});
