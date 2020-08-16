@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cameraapp/screens/screen3.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:ftpclient/ftpclient.dart';
@@ -119,20 +120,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       _isUploading = true;
                     });
                     print("image uploading!");
-//                    _scaffoldKey.currentState.showSnackBar(SnackBar(
-//                      content: Text("Connecting..."),
-//                    ));
-                    ftpUpload(_image, context);
+                    //ftpUpload(_image, context);
+                    moveToUploadScreen(_image, captureMode);
                   } else if (captureMode == cameraMode.video &&
                       _video != null) {
                     setState(() {
                       _isUploading = true;
                     });
                     print("video uploading!");
-//                    _scaffoldKey.currentState.showSnackBar(SnackBar(
-//                      content: Text("Connecting..."),
-//                    ));
-                    ftpUpload(_video, context);
+                    //ftpUpload(_video, context);
+                    moveToUploadScreen(_video, captureMode);
                   } else {
                     _showMyDialog(
                         'Nothing to upload!', "Capture an Image/Video first");
@@ -140,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                 }
               },
-              buttonTitle: _isUploading ? "Uploading..." : "Upload",
+              buttonTitle: _isUploading ? "Loading..." : "Next",
             ),
           ],
         ),
@@ -366,5 +363,24 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       print("End FTP");
     }
+  }
+
+  void moveToUploadScreen(File file, cameraMode captureMode) {
+//    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+//      return UploadScreen(
+//        fileToUpload: file,
+//        camMode: captureMode.index,
+//      );
+//    }));
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return TestScreen(
+        mediaFile: file,
+        camMode: captureMode.index,
+      );
+    })).then((value) {
+      setState(() {
+        _isUploading = false;
+      });
+    });
   }
 }

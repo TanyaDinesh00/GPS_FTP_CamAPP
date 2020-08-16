@@ -32,6 +32,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white10,
       body: Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -44,7 +45,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
             height: 10,
           ),
           Text(
-              "Fetching Location Data \nMake sure Location and Data is turned on"),
+            "Fetching Location Data \nMake sure Location and Data is turned on",
+            style: TextStyle(color: Colors.white),
+          ),
         ],
       )),
     );
