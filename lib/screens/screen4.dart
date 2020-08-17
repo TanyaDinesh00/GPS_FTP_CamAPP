@@ -119,9 +119,9 @@ class _UploadScreenState extends State<UploadScreen> {
     File fileToUpload;
     if (captureMode == cameraMode.video) {
       //Compression for Videos
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text("Compressing video..."),
-      ));
+//      _scaffoldKey.currentState.showSnackBar(SnackBar(
+//        content: Text("Compressing video..."),
+//      ));
       setState(() {
         progressText = 'Compressing Video...';
       });
