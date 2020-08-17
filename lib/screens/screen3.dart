@@ -125,25 +125,50 @@ class _TestScreenState extends State<TestScreen> {
                   description = descController.text;
                   await _write(complaintType, problemType, description);
 
-                  if (textFile != null) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) {
-                        return UploadScreen(
-                          mediaFile: mediaFile,
-                          textFile: textFile,
-                          camMode: captureMode.index,
-                        );
-                      }),
-                      (Route<dynamic> route) => false,
-                    );
-                  }
+                  await _confirmUpload();
                 },
                 buttonTitle: 'Next'),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _upload() async {
+    if (textFile != null) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return UploadScreen(
+            mediaFile: mediaFile,
+            textFile: textFile,
+            camMode: captureMode.index,
+          );
+        }),
+        (Route<dynamic> route) => false,
+      );
+    }
+  }
+
+  Future<bool> _confirmUpload() async {
+    return (await showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Confirm Changes'),
+            content: new Text('Proceed to Upload?'),
+            actions: <Widget>[
+              new FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: new Text('No'),
+              ),
+              new FlatButton(
+                onPressed: _upload,
+                child: new Text('Yes'),
+              ),
+            ],
+          ),
+        )) ??
+        false;
   }
 
   _write(String complaintTitle, String problemType, String description) async {

@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isUploading = false;
 
   var location;
-  cameraMode captureMode = cameraMode.photo;
+  cameraMode captureMode = cameraMode.video;
   File _image, _video;
   VideoPlayerController _videoPlayerController;
   ChewieController _chewieController;

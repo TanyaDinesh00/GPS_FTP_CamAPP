@@ -31,7 +31,11 @@ class _UploadScreenState extends State<UploadScreen> {
   @override
   void initState() {
     super.initState();
-    setState(() {});
+    print('App initialized');
+    setState(() {
+      _isUploading = false;
+      progressText = 'Ready to Upload';
+    });
     captureMode = cameraMode.values[(widget.camMode)];
     fileUpload = widget.mediaFile;
     textFile = widget.textFile;
@@ -129,20 +133,20 @@ class _UploadScreenState extends State<UploadScreen> {
       fileToUpload = File(info.path);
       fileToUpload = fileToUpload.renameSync(//Renaming compressed video
           path.join(path.dirname(info.path), path.basename(file.path)));
-      _scaffoldKey.currentState.removeCurrentSnackBar();
+      //_scaffoldKey.currentState.removeCurrentSnackBar();
       print(path.join(path.dirname(info.path), path.basename(file.path)));
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text("Video compressed..."),
-      ));
+//      _scaffoldKey.currentState.showSnackBar(SnackBar(
+//        content: Text("Video compressed..."),
+//      ));
       setState(() {
         _isUploading = true;
         progressText = 'Video Compressed';
       });
     } else {
       //For images
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text("Connecting..."),
-      ));
+//      _scaffoldKey.currentState.showSnackBar(SnackBar(
+//        content: Text("Connecting..."),
+//      ));
       fileToUpload = file;
     }
     setState(() {
@@ -152,29 +156,29 @@ class _UploadScreenState extends State<UploadScreen> {
         FTPClient('182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
 
     try {
-      _scaffoldKey.currentState.removeCurrentSnackBar();
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text("Connecting..."),
-      ));
+//      _scaffoldKey.currentState.removeCurrentSnackBar();
+//      _scaffoldKey.currentState.showSnackBar(SnackBar(
+//        content: Text("Connecting..."),
+//      ));
       ftpClient.connect();
-      _scaffoldKey.currentState.hideCurrentSnackBar();
+//      _scaffoldKey.currentState.hideCurrentSnackBar();
       print("Connection Successful");
       setState(() {
         progressText = 'Connection Successful';
       });
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text("Connection Successful"),
-      ));
+//      _scaffoldKey.currentState.showSnackBar(SnackBar(
+//        content: Text("Connection Successful"),
+//      ));
 
       print(ftpClient.currentDirectory());
       ftpClient.changeDirectory(
           captureMode == cameraMode.photo ? 'images' : 'videos');
       print(ftpClient.currentDirectory());
 
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text("Uploading..."),
-      ));
+//      _scaffoldKey.currentState.hideCurrentSnackBar();
+//      _scaffoldKey.currentState.showSnackBar(SnackBar(
+//        content: Text("Uploading..."),
+//      ));
       setState(() {
         progressText = 'Uploading Text File...';
       });
@@ -190,14 +194,14 @@ class _UploadScreenState extends State<UploadScreen> {
                 desc: (captureMode == cameraMode.photo ? 'Image' : 'Video') +
                     ' was uploaded successfully.')
             .show();
-        _scaffoldKey.currentState.removeCurrentSnackBar();
-        _scaffoldKey.currentState.showSnackBar(SnackBar(
-          content: Text("Uploaded Successfully"),
-          action: SnackBarAction(
-            label: 'Done',
-            onPressed: () {},
-          ),
-        ));
+//        _scaffoldKey.currentState.removeCurrentSnackBar();
+//        _scaffoldKey.currentState.showSnackBar(SnackBar(
+//          content: Text("Uploaded Successfully"),
+//          action: SnackBarAction(
+//            label: 'Done',
+//            onPressed: () {},
+//          ),
+//        ));
         print("Upload done!");
       });
     } catch (e) {
