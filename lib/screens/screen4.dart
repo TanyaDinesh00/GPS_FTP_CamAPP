@@ -204,21 +204,21 @@ class _UploadScreenState extends State<UploadScreen> {
 //        ));
         print("Upload done!");
       });
+      setState(() {
+        progressText = 'Upload Completed!';
+      });
     } catch (e) {
+      setState(() {
+        _isUploading = false;
+        progressText = 'Upload Failed. Try Again';
+      });
       Alert(context: context, title: "Error", desc: e.toString()).show();
       print(e);
       ftpClient.disconnect();
-      setState(() {
-        _isUploading = false;
-      });
     } finally {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
       ftpClient.disconnect();
       setState(() {
         _isUploading = false;
-      });
-      setState(() {
-        progressText = 'Upload Completed!';
       });
       print("End FTP");
     }
