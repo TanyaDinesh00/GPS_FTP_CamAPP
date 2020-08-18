@@ -112,6 +112,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             BottomButton(
               onTap: () {
+                if (_chewieController != null) {
+                  _chewieController.pause();
+                }
                 if (_isUploading) {
                   _showMyDialog("Please wait", "Upload in progress");
                 } else {
